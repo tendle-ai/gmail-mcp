@@ -1,0 +1,30 @@
+[project]
+name = "gmail-mcp"
+version = "0.1.0"
+description = "Gmail MCP connector by Tendle, backed by Composio"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["fastmcp>=4.0.10,<5", "composio==0.25.0", "composio-client==2.0.0rc8", "httpx>=0.28.1,<1", "pydantic>=2.12,<2.14", "jsonschema>=4.25,<5"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["pytest>=9,<10", "pytest-asyncio>=1,<2", "ruff>=0.16,<1", "pillow>=12,<13"]
+
+[project.scripts]
+tendle-connector = "tendle_composio.server:main"
+tendle-catalog = "tendle_composio.catalog:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tendle_composio"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"assets" = "tendle_composio/assets"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "connector_name": "Gmail",
+  "product_website": "https://tendle.ai/connectors/gmail",
+  "description": "Search and read Gmail, manage drafts and labels, send and reply to messages, and move messages to or from Trash. Powered by Composio.",
+  "example_prompts": [
+    "Find unread messages from this week and summarize what needs my attention.",
+    "Draft a reply to the selected thread for my review.",
+    "List my Gmail labels."
+  ],
+  "connector_icon": "https://gmail.tendle.ai/mcp/icon",
+  "payments": false,
+  "company": "Tendle",
+  "developer": "Nathaniel Angafor",
+  "your_name": "Nathaniel Angafor",
+  "work_email": "nate@tendle.ai",
+  "support_email_or_url": "hello@tendle.ai",
+  "privacy_policy": "https://tendle.ai/privacy",
+  "terms_of_service": "https://tendle.ai/tos",
+  "anything_else": "Built by Tendle with Composio. Provider permissions and quotas apply. Listing generation does not establish deployment or client verification.",
+  "technical_specs": {
+    "protocol": "MCP",
+    "transport": "Streamable HTTP",
+    "endpoint": "https://gmail.tendle.ai/mcp",
+    "docs_url": "https://gmail.tendle.ai/mcp/docs",
+    "health_endpoint": "https://gmail.tendle.ai/healthz",
+    "authentication": {
+      "type": "OAuth 2.1",
+      "credential": "Connector-scoped bearer token issued after provider connection",
+      "configuration": "Use native client OAuth; Composio holds the upstream service credentials.",
+      "public_operations": [
+        "documentation",
+        "manifest",
+        "icon",
+        "health"
+      ],
+      "note": "Never distribute the operator Composio API key."
+    },
+    "discovery": {
+      "documentation": "https://gmail.tendle.ai/mcp/docs",
+      "tools": "tools/list"
+    }
+  }
+}
