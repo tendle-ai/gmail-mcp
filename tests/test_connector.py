@@ -405,7 +405,7 @@ def test_consent_preserves_browser_post_origin_without_relaxing_csrf(setup):
     page = client.get("/connect", params={"flow": flow})
     assert page.headers["referrer-policy"] == "same-origin"
     assert (
-        "form-action 'self' https://connect.composio.dev;"
+        "form-action 'self' https://connect.composio.dev https://dashboard.composio.dev;"
         in page.headers["content-security-policy"]
     )
     import re

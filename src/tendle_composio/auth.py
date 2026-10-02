@@ -264,7 +264,7 @@ class ConnectorOAuth(OAuthProvider):
                 "Pragma": "no-cache",
                 "Referrer-Policy": "no-referrer",
                 "X-Frame-Options": "DENY",
-                "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https://connect.composio.dev; frame-ancestors 'none'; base-uri 'none'",
+                "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https://connect.composio.dev https://dashboard.composio.dev; frame-ancestors 'none'; base-uri 'none'",
             }
         )
 
