@@ -1,6 +1,10 @@
+<img src="assets/icon.png" width="80" height="80" alt="Gmail">
+
 # Gmail MCP
 
 Gmail MCP connector by Tendle, backed by Composio. Connect an individual Gmail account to search mail, inspect threads and attachments, manage drafts and labels, and send or reply to messages through an MCP agent.
+
+[Documentation](https://gmail.tendle.ai/mcp/docs) · [Manifest](https://gmail.tendle.ai/manifest.json) · [Tendle](https://tendle.ai)
 
 ## Agent quickstart
 
@@ -8,9 +12,19 @@ Gmail MCP connector by Tendle, backed by Composio. Connect an individual Gmail a
 Add Gmail from https://gmail.tendle.ai
 ```
 
-Use your agent's browser sign-in flow and select the Gmail account to connect. Users do not need a Composio key. Each installation has a separate account connection.
+## Example prompts
 
-Publication status: source release prepared. Public hostname, catalog listing and native client verification must be confirmed before treating this URL as available.
+- Find unread messages from this week and summarize what needs my attention.
+- Draft a reply to the selected thread for my review.
+- List my Gmail labels.
+
+## Status
+
+The Gmail HTTPS service is deployed. Tendle catalog publication and native client authorization are still pending verification.
+
+## Connection
+
+Use your agent's browser sign-in flow and select the Gmail account to connect. Users do not need a Composio key. Each installation has a separate account connection.
 
 ## Endpoints
 
@@ -24,6 +38,9 @@ Publication status: source release prepared. Public hostname, catalog listing an
 | `/` | Redirect to the Tendle catalog listing |
 
 The `gmail_get_docs` tool returns exactly the HTTP documentation. The service exposes 25 selected Gmail tools with original Composio input schemas, plus this documentation tool. See `assets/service.json` for the complete versioned selection. Sending, editing, labeling and trash operations change the connected mailbox. Permanent deletion and account-setting tools are excluded. There is no local-file attachment upload helper.
+
+<details>
+<summary>Local development and self-hosting</summary>
 
 ## Run locally
 
@@ -43,6 +60,8 @@ uv run ruff check src tests
 ```
 
 The process binds only to loopback. Put it behind a verified HTTPS reverse proxy with request-size and rate limits. Use one worker per encrypted SQLite state file. Back up the state and its encryption key securely; losing the key requires users to reconnect. Do not log authorization query strings, bearer tokens, tool inputs, provider responses, or mailbox contents.
+
+</details>
 
 ## Authentication and account isolation
 
@@ -71,6 +90,11 @@ Some toolkits require a custom OAuth app or credentials from each user. Resale p
 - `assets/`: service definition, listing metadata and icon.
 - `tests/`: protocol, authorization, isolation and generator checks using test data.
 
+<details>
+<summary>Publisher and provenance</summary>
+
 Published by Tendle. Support: hello@tendle.ai. [Privacy](https://tendle.ai/privacy) · [Terms](https://tendle.ai/tos).
 
 The Gmail name and logo identify the upstream service. Tool schemas and descriptions originate from Composio. This connector is provided by Tendle and is not an official Google product.
+
+</details>

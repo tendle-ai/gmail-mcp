@@ -380,3 +380,19 @@ def test_persistence_is_encrypted(setup):
     assert token.encode() not in raw
     assert b"ca_1" not in raw
     assert b"https://agent.example" not in raw
+
+
+def test_public_client_discovery_and_revocation_cors(setup):
+    client, _, _, _ = setup
+    metadata = client.get("/.well-known/oauth-authorization-server").json()
+    assert "none" in metadata["token_endpoint_auth_methods_supported"]
+    assert "none" in metadata["revocation_endpoint_auth_methods_supported"]
+    response = client.options(
+        "/revoke",
+        headers={
+            "Origin": "https://agent.example",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "*"

@@ -10,6 +10,8 @@ from mcp.server.auth.middleware.client_auth import (
     AuthenticationError,
     ClientAuthenticator,
 )
+from mcp.server.auth.handlers.metadata import MetadataHandler
+from mcp.server.auth.routes import build_metadata, cors_middleware
 from mcp.server.auth.provider import (
     AuthorizationCode,
     AuthorizeError,
@@ -413,9 +415,40 @@ class ConnectorOAuth(OAuthProvider):
         return Response(status_code=200, headers={"Cache-Control": "no-store"})
 
     def get_routes(self, mcp_path=None):
+        routes = super().get_routes(mcp_path)
+        metadata = build_metadata(
+            self.base_url,
+            self.service_documentation_url,
+            self.client_registration_options,
+            self.revocation_options,
+        )
+        metadata.issuer = self.issuer_url
+        metadata.token_endpoint_auth_methods_supported = [
+            "none",
+            "client_secret_post",
+            "client_secret_basic",
+        ]
+        metadata.revocation_endpoint_auth_methods_supported = [
+            "none",
+            "client_secret_post",
+            "client_secret_basic",
+        ]
         return [
-            *[r for r in super().get_routes(mcp_path) if r.path != "/revoke"],
-            Route("/revoke", self.revoke_request, methods=["POST"]),
+            *[
+                r
+                for r in routes
+                if r.path not in ("/revoke", "/.well-known/oauth-authorization-server")
+            ],
+            Route(
+                "/.well-known/oauth-authorization-server",
+                cors_middleware(MetadataHandler(metadata).handle, ["GET", "OPTIONS"]),
+                methods=["GET", "OPTIONS"],
+            ),
+            Route(
+                "/revoke",
+                cors_middleware(self.revoke_request, ["POST", "OPTIONS"]),
+                methods=["POST", "OPTIONS"],
+            ),
             Route("/connect", self.consent),
             Route("/connect/start", self.start, methods=["POST"]),
             Route("/auth/callback", self.callback),
