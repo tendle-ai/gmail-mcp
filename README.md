@@ -20,7 +20,7 @@ Add Gmail from https://gmail.tendle.ai
 
 ## Status
 
-The Gmail HTTPS service is deployed. Tendle catalog publication and native client authorization are still pending verification.
+The Gmail HTTPS service is deployed. A real connected account has passed profile and one-message reads through the deployed backend. Native client tool execution after the latest repair and Tendle catalog publication remain pending verification.
 
 ## Connection
 

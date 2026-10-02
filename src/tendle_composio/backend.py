@@ -44,7 +44,7 @@ class Backend:
         if self.config.get("auth_config_id"):
             kwargs["auth_configs"] = {self.slug: self.config["auth_config_id"]}
         if account_id:
-            kwargs["connected_accounts"] = {self.slug: account_id}
+            kwargs["connected_accounts"] = {self.slug: [account_id]}
         return self.sdk.sessions.create(
             user_id=user_id,
             toolkits=[self.slug],
@@ -132,10 +132,14 @@ class Backend:
             if session.config.user_id != grant["user_id"]:
                 raise UpstreamError("connection_mismatch")
             self._check_schema(grant["session_id"])
-            # No caller-controlled session, account, or Composio user identifier.
-            result = session.execute(
-                name, arguments=arguments, account=grant.get("account_id")
-            )
+            # Account selection belongs to the pinned single-account session.
+            # The execute-level account field requires Composio multi-account mode.
+            account_id = grant.get("account_id")
+            if account_id and (session.config.connected_accounts or {}).get(
+                self.slug
+            ) != [account_id]:
+                raise UpstreamError("connection_mismatch")
+            result = session.execute(name, arguments=arguments)
             if result.error:
                 raise UpstreamError(
                     "tool_execution_failed: Check the account, permissions and inputs. A write may have taken effect; verify before repeating it."

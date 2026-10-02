@@ -19,6 +19,7 @@ def backend():
     b.sdk.tools.get_raw_tool_router_meta_tools.return_value = [NS(**CONFIG["tools"][0])]
     session = b.sdk.sessions.use.return_value
     session.config.user_id = "user-a"
+    session.config.connected_accounts = {"gmail": ["account-a"]}
     session.execute.return_value = NS(error=None, data={"ok": True})
     b.sdk.connected_accounts.get.return_value = NS(
         user_id="user-a", toolkit=NS(slug="gmail"), status="ACTIVE", is_disabled=False
@@ -33,9 +34,7 @@ async def test_backend_binds_user_account_and_schema():
     await b.finish("user-a", "session-a", "account-a")
     session.update.assert_called_once_with(connected_accounts={"gmail": ["account-a"]})
     assert await b.execute(grant, "GMAIL_GET_PROFILE", {}) == {"ok": True}
-    session.execute.assert_called_once_with(
-        "GMAIL_GET_PROFILE", arguments={}, account="account-a"
-    )
+    session.execute.assert_called_once_with("GMAIL_GET_PROFILE", arguments={})
     session.execute.reset_mock()
     session.config.user_id = "user-b"
     with pytest.raises(UpstreamError, match="connection_mismatch"):
@@ -127,3 +126,16 @@ def test_generator_preserves_toolkit_identity_and_refuses_overwrite(tmp_path):
     assert config["toolkit_slug"] == "some_app"
     with pytest.raises(ValueError, match="exists"):
         generate(source, dest, toolkit, tools)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "accounts", [None, {}, {"gmail": ["other"]}, {"gmail": ["account-a", "other"]}]
+)
+async def test_execution_rejects_unpinned_or_different_account(accounts):
+    b, session = backend()
+    session.config.connected_accounts = accounts
+    grant = {"user_id": "user-a", "session_id": "session-a", "account_id": "account-a"}
+    with pytest.raises(UpstreamError, match="connection_mismatch"):
+        await b.execute(grant, "GMAIL_GET_PROFILE", {})
+    session.execute.assert_not_called()
