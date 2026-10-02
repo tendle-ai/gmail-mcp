@@ -150,13 +150,6 @@ class ConnectorOAuth(OAuthProvider):
         # Preserve the same-origin POST signal without leaking the flow URL to
         # external destinations. Redirect responses still use no-referrer.
         response.headers["Referrer-Policy"] = "same-origin"
-        # Chromium applies form-action to the POST's external redirect too.
-        # Allow only the same Connect Link host validated by start().
-        response.headers["Content-Security-Policy"] = response.headers[
-            "Content-Security-Policy"
-        ].replace(
-            "form-action 'self';", "form-action 'self' https://connect.composio.dev;"
-        )
         return response
 
     async def start(self, request):
@@ -271,7 +264,7 @@ class ConnectorOAuth(OAuthProvider):
                 "Pragma": "no-cache",
                 "Referrer-Policy": "no-referrer",
                 "X-Frame-Options": "DENY",
-                "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+                "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https://connect.composio.dev; frame-ancestors 'none'; base-uri 'none'",
             }
         )
 
