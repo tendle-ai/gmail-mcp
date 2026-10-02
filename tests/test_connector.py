@@ -396,3 +396,36 @@ def test_public_client_discovery_and_revocation_cors(setup):
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "*"
+
+
+def test_consent_preserves_browser_post_origin_without_relaxing_csrf(setup):
+    client, _, _, backend = setup
+    cid = register(client)
+    flow, _, _ = begin(client, cid)
+    page = client.get("/connect", params={"flow": flow})
+    assert page.headers["referrer-policy"] == "same-origin"
+    import re
+
+    csrf = re.search(r'name="csrf" value="([^"]+)"', page.text)[1]
+    for origin, supplied_csrf in [
+        ("null", csrf),
+        ("https://evil.example", csrf),
+        (BASE, "bad"),
+    ]:
+        result = client.post(
+            "/connect/start",
+            params={"flow": flow},
+            data={"csrf": supplied_csrf},
+            headers={"Origin": origin},
+        )
+        assert result.status_code == 400
+    assert backend.connections == {}
+    result = client.post(
+        "/connect/start",
+        params={"flow": flow},
+        data={"csrf": csrf},
+        headers={"Origin": BASE},
+    )
+    assert result.status_code == 303
+    assert result.headers["referrer-policy"] == "no-referrer"
+    assert len(backend.connections) == 1

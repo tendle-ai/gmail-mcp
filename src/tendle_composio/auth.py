@@ -146,6 +146,10 @@ class ConnectorOAuth(OAuthProvider):
             path="/",
         )
         self._private(response)
+        # no-referrer makes ordinary browser form POSTs send Origin: null.
+        # Preserve the same-origin POST signal without leaking the flow URL to
+        # external destinations. Redirect responses still use no-referrer.
+        response.headers["Referrer-Policy"] = "same-origin"
         return response
 
     async def start(self, request):
